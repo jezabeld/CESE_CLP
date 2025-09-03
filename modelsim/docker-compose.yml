@@ -1,0 +1,23 @@
+services:
+  modelsim:
+    image: modelsim_17
+    container_name: modelsim_17_gui
+    network_mode: host
+    ipc: host
+    shm_size: "512m"
+    environment:
+      DISPLAY: "unix${DISPLAY}"
+      LC_ALL: C
+      LANG: C
+      QT_X11_NO_MITSHM: "1"
+      XLIB_SKIP_ARGB_VISUALS: "1"
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+      - /etc/machine-id:/etc/machine-id:ro
+      - ../codigos:/workspace
+    working_dir: /workspace
+    tty: true
+    stdin_open: true
+    # Si 'vsim' no está en el PATH, usá la ruta completa que trae 17.1:
+    command: ["/home/developer/intelFPGA/17.1/modelsim_ase/bin/vsim"]
+
