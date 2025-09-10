@@ -1,5 +1,28 @@
 # CESE_CLP
 
+## Ejercicios de la guía de VHDL
+[Guia_VHDL.pdf](Guia_VHDL.pdf)
+<!-- Los ejercicios de la guía a entregar para alcanzar el máximo puntaje (1.5) son:
+ 1, 2, 3, 4, 5, 6, 8, 10, 11, 13, 15, 17 y 18. -->
+1. Sumador completo de 1 bit: [sum1b](./codigos/sum1b/fuentes/sum1b.vhd).
+2. Sumador de 4 bits: [sum4b](./codigos/sum4b/fuentes/sum4b.vhd)
+3. Sumador/restador de 4 bits: [sum_res4b](./codigos/sumres4b/fuentes/sum_res4b.vhd)
+4. Multiplexor 2x1: [TODO]
+5. Flip-Flop D con reset sincronico: [ffd](./codigos/ffd/fuentes/ffd.vhd)
+6. [TODO]
+7. [TODO]
+8. [TODO]
+9. [TODO]
+10. Contador binario de 4 bits (estructural): [cont4b](./codigos/cont4b/fuentes/cont4b.vhd).
+11. Contador binario de 4 bits (comportamiento): [TODO]
+12. Contador binario de N bits (estructural): [TODO]
+13. Contador binario de N bits (comportamiento): [contador](./codigos/contador/fuentes/contador.vhd)
+14. [TODO]
+15. [TODO]
+16. [TODO]
+17. Generador de habilitacion cada N ciclos: [genEna](./codigos/genEna/fuentes/genEna.vhd)
+18. [TODO]
+
 ## Instrucciones para correr ModelSim en docker (Ubuntu 22.04 Wayland)
 
 Estas instrucciones estan basadas en este [repo](https://gitlab.cern.ch/ecalvo/CI-hdl/-/blob/master/Dockerfile_ModelSim).
