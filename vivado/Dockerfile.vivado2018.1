@@ -1,0 +1,123 @@
+FROM ubuntu:18.04 AS ubuntu_base
+
+ENV HOME_DIR=/home/developer
+ENV XLNX_INSTALL_LOCATION=$HOME_DIR/Xilinx
+ENV VIVADO_VERSION=2018.1
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+ENV LM_LICENSE_SERVER=portNum@ipAddrOfLicenseServer
+ENV INSTALLER_FOLDER=Xilinx_Vivado_SDK_2018.1_0405_1
+ENV XLNX_VIVADO_OFFLINE_INSTALLER=$INSTALLER_FOLDER.tar.gz
+ENV XLNX_VIVADO_BATCH_CONFIG_FILE=install.config
+COPY board_files $XLNX_INSTALL_LOCATION/tmp/board_files
+COPY $XLNX_VIVADO_BATCH_CONFIG_FILE $XLNX_INSTALL_LOCATION/tmp/$XLNX_VIVADO_BATCH_CONFIG_FILE
+COPY $XLNX_VIVADO_OFFLINE_INSTALLER $XLNX_INSTALL_LOCATION/tmp/$XLNX_VIVADO_OFFLINE_INSTALLER
+
+#Dependencies:
+
+RUN apt-get update
+RUN dpkg --add-architecture i386 
+RUN apt-get update 
+# petalinux base dependencies
+RUN apt-get install -y \
+	  	tofrodos \
+	  	iproute2 \
+		gawk \
+		xvfb \
+		git \
+		make \
+		net-tools \
+		libncurses5-dev \
+	  	update-inetd \
+	  	tftpd \
+		zlib1g-dev:i386 \
+	  	libssl-dev \
+	  	flex \
+	  	bison \
+	  	libselinux1 \
+	  	gnupg \
+	  	wget \
+		diffstat \
+		chrpath \
+		socat \
+		xterm \
+		autoconf \
+		libtool \
+		libtool-bin \
+		tar \
+	  	unzip \
+	  	texinfo \
+		zlib1g-dev \
+		gcc-multilib \
+		build-essential \
+		libsdl1.2-dev \
+		libglib2.0-dev \
+		screen \
+		pax \
+		gzip \
+		python3-gi \
+		less \
+		lsb-release \
+		fakeroot \
+		libgtk2.0-0 \
+		libgtk2.0-dev \
+		cpio \
+		rsync \
+		xorg \
+		expect \
+		dos2unix
+
+RUN apt-get install -y \
+	 	libboost-signals-dev \
+	 	google-perftools \
+		default-jre
+
+# Change access rights and ownership for developer user
+ARG USER=developer
+ARG UID=1000
+ARG GID=1000
+
+# Crear grupo/usuario y su home
+RUN groupadd -g $GID $USER \
+ 	&& useradd -m -u $UID -g $GID -s /bin/bash $USER
+RUN chown -R developer /home/developer/
+
+USER developer
+RUN cd $XLNX_INSTALL_LOCATION/tmp \
+ 	&& cat $XLNX_VIVADO_BATCH_CONFIG_FILE \
+ 	&& tar -zxf $XLNX_VIVADO_OFFLINE_INSTALLER && ls -al \
+	&& echo "cd $XLNX_INSTALL_LOCATION" >> $HOME_DIR/.bashrc \
+	&& echo "export LANG=en_US.UTF-8" >> $HOME_DIR/.bashrc \
+	&& export "LANG=en_US.UTF-8" \
+	&& echo ". $XLNX_INSTALL_LOCATION/Vivado/$VIVADO_VERSION/settings64.sh" >> $HOME_DIR/.bashrc \
+	&& echo "export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$XLNX_INSTALL_LOCATION/Vivado/$VIVADO_VERSION/lib/lnx64.o/" >> $HOME_DIR/.bashrc
+
+FROM ubuntu_base AS vivado_v2018.1
+USER root
+RUN cd $XLNX_INSTALL_LOCATION/tmp \
+	&& mv $XLNX_VIVADO_BATCH_CONFIG_FILE $INSTALLER_FOLDER/ \
+	&& cd $INSTALLER_FOLDER \
+# Setup installer permissions \
+  	&& chmod a+x xsetup \
+# Run Setup in batch mode to install Vivado \
+	&& cd $XLNX_INSTALL_LOCATION/tmp/$INSTALLER_FOLDER \
+	&& ./xsetup \
+  		--agree XilinxEULA,3rdPartyEULA,WebTalkTerms \
+  		--config $XLNX_VIVADO_BATCH_CONFIG_FILE \
+  		--batch INSTALL 
+
+RUN cp -r $XLNX_INSTALL_LOCATION/tmp/board_files/* $XLNX_INSTALL_LOCATION/Vivado/$VIVADO_VERSION/data/boards/board_files 
+
+# Cleanup Temporary Files \
+RUN cd $HOME_DIR \
+
+# Cleanup temporary install files 
+	&& rm -rf $XLNX_INSTALL_LOCATION/tmp \
+
+# Cleanup apt cache and temporary files to reduce image size
+	&& apt-get clean
+
+# RUN source $XLNX_INSTALL_LOCATION/Vivado/$VIVADO_VERSION/settings64.sh
+RUN export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$XLNX_INSTALL_LOCATION/Vivado/$VIVADO_VERSION/lib/
+USER developer

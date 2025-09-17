@@ -1,0 +1,25 @@
+services:
+  vivado:
+    image: vivado2018
+    container_name: vivado_v2018_gui
+    network_mode: host
+    ipc: host
+    shm_size: "512m"
+    environment:
+      DISPLAY: ${DISPLAY}
+      LC_ALL: C
+      LANG: C
+      QT_X11_NO_MITSHM: "1"
+      XLIB_SKIP_ARGB_VISUALS: "1"
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+      - /etc/machine-id:/etc/machine-id:ro
+      - ../codigos:/home/developer/work
+    working_dir: /home/developer/work
+    tty: true
+    stdin_open: true
+    command: ["/home/developer/Xilinx/Vivado/2018.1/bin/vivado"]
+
+# levantar el server local para leer la placa:
+# ~/Xilinx/Vivado/2018.1/bin/hw_server -s tcp::3123 -L-
+
