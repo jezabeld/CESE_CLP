@@ -1,2 +1,6 @@
 **/simulacion/*
 **/sintesis/*
+
+**/._*
+.Xil/
+.DS_Store
